@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MY Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background: #0a0a0a;
+            color: white;
+        }
+
+        section {
+            height: 100vh;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Particle Canvas */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.3;
+        }
+
+        /* Hero Section */
+        #hero {
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 800;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff, #00ff88, #ffaa00);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease infinite;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            opacity: 0.9;
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+
+        .cta-primary {
+            background: linear-gradient(45deg, #00f5ff, #0099cc);
+            box-shadow: 0 10px 30px rgba(0, 245, 255, 0.4);
+        }
+
+        .cta-secondary {
+            background: transparent;
+            border: 2px solid #00f5ff;
+            color: #00f5ff;
+            box-shadow: inset 0 0 0 2px #00f5ff;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 245, 255, 0.3);
+        }
+
+        /* 3D Globe Section */
+        #about {
+            background: linear-gradient(135deg, #0c0c1a 0%, #1a0a2e 100%);
+        }
+
+        #globe-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .about-content {
+            z-index: 10;
+            max-width: 800px;
+            text-align: center;
+            padding: 0 2rem;
+        }
+
+        .about-title {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            background: linear-gradient(45deg, #ff00ff, #00f5ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+        }
+
+        /* Skills Section */
+        #skills {
+            background: radial-gradient(circle at center, #1e3a8a 0%, #0f172a 70%);
+            position: relative;
+        }
+
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 3rem;
+            max-width: 1200px;
+            width: 100%;
+            padding: 0 2rem;
+            z-index: 10;
+        }
+
+        .skill-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.7s;
+        }
+
+        .skill-card:hover::before {
+            left: 100%;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            border-color: #00f5ff;
+            box-shadow: 0 30px 60px rgba(0, 245, 255, 0.2);
+        }
+
+        .skill-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .skill-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        /* Projects Section */
+        #projects {
+            background: linear-gradient(45deg, #0f0f23 0%, #1a1a3e 100%);
+        }
+
+        .projects-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            width: 100%;
+            padding: 0 2rem;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #00f5ff, #ff00ff, #00ff88);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .project-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 245, 255, 0.2);
+        }
+
+        .project-content {
+            padding: 2rem;
+        }
+
+        .project-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Contact Section */
+        #contact {
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .contact-content {
+            text-align: center;
+            z-index: 10;
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .social-link {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(20px);
+        }
+
+        .social-github { background: rgba(0, 0, 0, 0.5); border: 2px solid #00f5ff; }
+        .social-linkedin { background: rgba(0, 0, 0, 0.5); border: 2px solid #ff00ff; }
+        .social-email { background: rgba(255, 0, 255, 0.2); border: 2px solid #00ff88; }
+
+        .social-link:hover {
+            transform: translateY(-10px) scale(1.1);
+            box-shadow: 0 15px 30px rgba(0, 245, 255, 0.4);
+        }
+
+        /* Scroll Indicators */
+        .scroll-indicator {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .scroll-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(0, 245, 255, 0.5);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .scroll-dot.active {
+            background: #00f5ff;
+            box-shadow: 0 0 20px #00f5ff;
+            transform: scale(1.5);
+        }
+
+        @media (max-width: 768px) {
+            .cta-buttons,
+            .contact-links {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .cta-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Background -->
+    <canvas id="particles"></canvas>
+
+    <!-- Navigation Dots -->
+    <div class="scroll-indicator" id="scrollIndicator">
+        <div class="scroll-dot active" data-section="0"></div>
+        <div class="scroll-dot" data-section="1"></div>
+        <div class="scroll-dot" data-section="2"></div>
+        <div class="scroll-dot" data-section="3"></div>
+        <div class="scroll-dot" data-section="4"></div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">MUSAVIR HASSAN</h1>
+            <p class="hero-subtitle">
+                Developer | Web Designer<br>
+                Crafting Immersive Digital Experiences
+            </p>
+            <div class="cta-buttons">
+                <button class="cta-btn cta-primary" onclick="scrollToSection('projects')">
+                    <i class="fas fa-rocket"></i> Explore Work
+                </button>
+                <button class="cta-btn cta-secondary" onclick="scrollToSection('contact')">
+                    <i class="fas fa-envelope"></i> Contact
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- About with 3D Globe -->
+    <section id="about">
+        <canvas id="globe-canvas"></canvas>
+        <div class="about-content">
+            <h2 class="about-title">B.Tech CSE | Mewar University</h2>
+            <p style="font-size: 1.3rem; opacity: 0.9; margin-bottom: 2rem;">
+                Transforming code into immersive 3D experiences. Full-stack developer specializing in 
+                modern web technologies and cutting-edge graphics.
+            </p>
+            <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; font-size: 1.1rem;">
+                <span>🌟 3+ Projects</span>
+                <span>⚡ •HTML •css •js •React •python •Java •c++ •c(programming)</span>
+                <span>🎨 Behak Studio </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills -->
+    <section id="skills">
+        <div class="skills-container">
+            <div class="skill-card">
+                <div class="skill-icon">⚛️</div>
+                <h3 class="skill-name">React.js</h3>
+                <p>Modern UI development with hooks, state management & performance optimization</p>
+            </div>
+            <div class="skill-card">
+                <div class="skill-icon">🐍</div>
+                <h3 class="skill-name">Python</h3>
+                <p>Scalable Python backends, REST APIs, authentication & admin panels</p>
+            </div>
+            <div class="skill-card">
+                <div class="skill-icon">♨️ </div>
+                <h3 class="skill-name">JAVA</h3>
+                <p>Skilled in Java programming with solid understanding of object-oriented principles, syntax, and core libraries</p>
+            </div>
+            <div class="skill-card">
+                <div class="skill-icon">🎨</div>
+                <h3 class="skill-name">UI/UX Design</h3>
+                <p>Figma prototypes, branding & premium digital experiences</p>
+            </div>
+             <div class="skill-card">
+                <div class="skill-icon">🎮</div>
+                <h3 class="skill-name">C++</h3>
+                <p>Proficient in basic C++ programming including syntax, data structures, loops, functions, and foundational object-oriented concepts from my B.Tech CSE</p>
+        </div>
+    </section>
+
+    <!-- Projects -->
+    <section id="projects">
+        <div class="projects-container">
+            <div class="project-card">
+                <div class="project-content">
+                    <h3 class="project-title">Behak Studio 3D</h3>
+                    <p>Interactive 3D pashmina showcase with WebGL shaders, AR try-on & e-commerce integration</p>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
+                        <span style="background: rgba(0,245,255,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem;">Three.js</span>
+                        <span style="background: rgba(255,0,255,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem;">React</span>
+                        <span style="background: rgba(0,255,136,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem;">Django</span>
+                    </div>
+                </div>
+            </div>
+            <div class="project-card">
+                <div class="project-content">
+                    <h3 class="project-title">IDS</h3>
+                    <p>Ids system</p>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
+                        <span style="background: rgba(0,245,255,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem;">Python</span>
+                        <span style="background: rgba(255,165,0,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem;">Scapy</span>
+                    </div>
+                </div>
+            </div>
+            <div class="project-card">
+                <div class="project-content">
+                    <h3 class="project-title">Portfolio 3D Engine</h3>
+                    <p>Custom WebGL engine powering this portfolio with particle systems & dynamic lighting</p>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
+                        <span style="background: rgba(0,245,255,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem;">Three.js</span>
+                        <span style="background: rgba(255,0,255,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem;">Shaders</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact">
+        <div class="contact-content">
+            <h2 style="font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 2rem; background: linear-gradient(45deg, #00f5ff, #ff00ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                Let's Create Something Amazing
+            </h2>
+            <p style="font-size: 1.3rem; opacity: 0.9; margin-bottom: 3rem;">
+                Ready for your next 3D web project? Get in touch.
+            </p>
+            <div class="contact-links">
+                <a href="Darmusavir10@gmail.com" class="social-link social-email" title="Email">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <a href="https://github.com/musavirdar" class="social-link social-github" target="_blank">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://linkedin.com/in/musavir-dar09" class="social-link social-linkedin" target="_blank">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Particle System
+        const particlesCanvas = document.getElementById('particles');
+        const particlesCtx = particlesCanvas.getContext('2d');
+        
+        particlesCanvas.width = window.innerWidth;
+        particlesCanvas.height = window.innerHeight;
+
+        const particles = [];
+        for(let i = 0; i < 100; i++) {
+            particles.push({
+                x: Math.random() * particlesCanvas.width,
+                y: Math.random() * particlesCanvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                radius: Math.random() * 2 + 1
+            });
+        }
+
+        function animateParticles() {
+            particlesCtx.clearRect(0, 0, particlesCanvas.width, particlesCanvas.height);
+            
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                if(p.x < 0 || p.x > particlesCanvas.width) p.vx *= -1;
+                if(p.y < 0 || p.y > particlesCanvas.height) p.vy *= -1;
+                
+                particlesCtx.beginPath();
+                particlesCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                particlesCtx.fillStyle = `rgba(0, 245, 255, ${Math.random() * 0.5})`;
+                particlesCtx.fill();
+            });
+            
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // 3D Globe
+        const globeCanvas = document.getElementById('globe-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ 
+            canvas: globeCanvas,
+            alpha: true,
+            antialias: true 
+        });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0);
+
+        const geometry = new THREE.SphereGeometry(2, 64, 64);
+        const material = new THREE.MeshPhongMaterial({
+            color: 0x00f5ff,
+            shininess: 100,
+            transparent: true,
+            opacity: 0.8,
+            wireframe: true
+        });
+        
+        const globe = new THREE.Mesh(geometry, material);
+        scene.add(globe);
+
+        const light1 = new THREE.PointLight(0x00f5ff, 1, 100);
+        light1.position.set(10, 10, 10);
+        scene.add(light1);
+
+        const light2 = new THREE.PointLight(0xff00ff, 1, 100);
+        light2.position.set(-10, -10, -10);
+        scene.add(light2);
+
+        camera.position.z = 5;
+
+        function animateGlobe() {
+            globe.rotation.y += 0.005;
+            globe.rotation.x += 0.002;
+            renderer.render(scene, camera);
+            requestAnimationFrame(animateGlobe);
+        }
+        animateGlobe();
+
+        // Scroll Navigation
+        const sections = document.querySelectorAll('section');
+        const scrollDots = document.querySelectorAll('.scroll-dot');
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            const sectionHeight = window.innerHeight;
+            const activeSection = Math.floor(scrollY / sectionHeight);
+            
+            scrollDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === activeSection);
+            });
+        });
+
+        scrollDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const sectionIndex = parseInt(dot.dataset.section);
+                sections[sectionIndex].scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Resize handlers
+        window.addEventListener('resize', () => {
+            particlesCanvas.width = window.innerWidth;
+            particlesCanvas.height = window.innerHeight;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
