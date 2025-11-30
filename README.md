@@ -1,4 +1,4 @@
-# 🚀 3D Portfolio Website
+# 🚀 Portfolio Website
 
 **Live Demo**: https://YOUR_USERNAME.github.io
 
