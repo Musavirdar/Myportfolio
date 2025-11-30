@@ -1,6 +1,6 @@
 # 🚀 Portfolio Website
 
-**Live Demo**: https://YOUR_USERNAME.github.io
+**Live Demo**: [https://YOUR_USERNAME.github.io](https://musavirdar.github.io/Myportfolio/)
 
 
 Full-stack developer portfolio featuring **real-time Three.js 3D globe**, **GPU particle systems**, **snap-scroll navigation**, and **cyberpunk neon aesthetics**. Built with HTML/CSS/JS + WebGL for immersive web experiences.[web:76]
